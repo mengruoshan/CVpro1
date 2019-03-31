@@ -1,0 +1,180 @@
+//Image after non maximum suppression
+    cout<<"image_sobel_x[i][j] is "<<img_sobel_x[7][4]<<endl;
+    float magnitude[row][col];
+    float norm[row][col];
+    int direction[row][col];
+    float tolerance = 10;
+    for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+		{
+			magnitude[i][j] = sqrt(pow(img_sobel_x[i][j],2)+pow(img_sobel_y[i][j],2));
+			norm[i][j] = (img_sobel_x[i][j]*img_sobel_y[i][j])/magnitude[i][j];
+			
+			if(norm[i][j] > 0)
+			{	
+				direction[i][j] = 45;
+			}
+			else
+			{
+				direction[i][j] = 135;
+			}
+
+			if(img_sobel_x[i][j] == 0)
+			{
+				direction[i][j] = 90;
+			}
+			else
+			{
+
+			}
+
+			if(img_sobel_y[i][j] == 0)
+			{
+				direction[i][j] = 0;
+			}
+			else
+			{
+
+			}
+
+			
+
+		}
+	}
+	
+	float magnitude_NMS[row][col];
+
+	for (int i = 1; i < row-1; i++)
+	{
+		for (int j = 1; j < col-1; j++)
+		{
+			switch(direction[i][j])
+			{
+				case 0:
+				if(magnitude[i][j]>magnitude[i-1][j] && magnitude[i][j]>magnitude[i+1][j])
+				{
+					magnitude_NMS[i][j] = magnitude[i][j];
+					magnitude_NMS[i-1][j] = 0;
+					magnitude_NMS[i+1][j] = 0;
+				}
+				else
+				{
+					magnitude_NMS[i][j] = 0;
+				}
+				break;
+				case 45:
+				if(magnitude[i][j]>magnitude[i-1][j-1] && magnitude[i][j]>magnitude[i+1][j+1])
+				{
+					magnitude_NMS[i][j] = magnitude[i][j];
+					magnitude_NMS[i-1][j-1] = 0;
+					magnitude_NMS[i+1][j+1] = 0;
+				}
+				else
+				{
+					magnitude_NMS[i][j] = 0;
+				}
+				break;
+				case 90:
+				if(magnitude[i][j]>magnitude[i][j-1] && magnitude[i][j]>magnitude[i][j+1])
+				{
+					magnitude_NMS[i][j] = magnitude[i][j];
+					magnitude_NMS[i][j-1] = 0;
+					magnitude_NMS[i][j+1] = 0;
+				}
+				else
+				{
+					magnitude_NMS[i][j] = 0;
+				}
+				break;
+				case 135:
+				if(magnitude[i][j]>magnitude[i-1][j+1] && magnitude[i][j]>magnitude[i+1][j-1])
+				{
+					magnitude_NMS[i][j] = magnitude[i][j];
+					magnitude_NMS[i-1][j+1] = 0;
+					magnitude_NMS[i+1][j-1] = 0;
+				}
+				else
+				{
+					magnitude_NMS[i][j] = 0;
+				}
+				break;
+			}
+
+		}
+	}
+
+	for(int i = 0;i<row;i++)
+	{
+		magnitude_NMS[i][0] = 0;
+		magnitude_NMS[i][col] = 0;
+	}
+	for(int j = 0;j<col;j++)
+	{
+		magnitude_NMS[0][j] = 0;
+		magnitude_NMS[row][j] = 0;
+	}
+    
+	float imgmax = 0;
+    for (int i = 0; i < row; i++)
+	{
+		for (int j = 0; j < col; j++)
+		{
+			if(magnitude_NMS[i][j]>imgmax)
+			{
+				imgmax = magnitude_NMS[i][j];
+			}
+
+		}
+	}
+	cout<<"max is "<<imgmax<<endl;
+    if(imgmax>255)
+    {
+
+    	
+    	for (int i = 0; i < row; i++)
+	    {
+		   for (int j = 0; j < col; j++)
+		   {
+
+              
+			  magnitude_NMS[i][j] = magnitude_NMS[i][j];
+
+		   }
+	    }
+    }
+    else
+    {
+    	for (int i = 0; i < row; i++)
+	    {
+		   for (int j = 0; j < col; j++)
+		   {
+			  magnitude_NMS[i][j] = magnitude_NMS[i][j];
+
+		   }
+	    }
+    }
+    cout<<"debug"<<endl;
+
+	FILE* pgmimg; 
+    pgmimg = fopen("outputmag.pgm", "wb"); 
+  
+    // Writing Magic Number to the File 
+    fprintf(pgmimg, "P2\n");  
+  
+    // Writing Width and Height 
+    fprintf(pgmimg, "%d %d\n", row, col);  
+  
+    // Writing the maximum gray value 
+    fprintf(pgmimg, "255\n");  
+    int count = 0; 
+    for (int i = 0; i < row; i++) { 
+        for (int j = 0; j < col; j++) { 
+            int temp = magnitude[i][j]; 
+            
+            // Writing the gray values in the 2D array to the file 
+            fprintf(pgmimg, "%d ", temp); 
+        } 
+        fprintf(pgmimg, "\n"); 
+    } 
+    fclose(pgmimg); 
